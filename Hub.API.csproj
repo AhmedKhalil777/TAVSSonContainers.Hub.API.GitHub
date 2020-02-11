@@ -20,6 +20,18 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Images\5e3de81fab9a204bf003f4f5John\2d376990-ec32-451f-88ef-caf37535b42bEssDesignsItemss—Pngtree—floating skull_106060.png" />
+    <None Include="wwwroot\Images\5e3de81fab9a204bf003f4f5John\3582f9ad-9628-4d03-bcea-d304abee4c4cEssDesignsItemssHuman-Computer-Interface.png" />
+    <None Include="wwwroot\Images\5e3de81fab9a204bf003f4f5John\cf86a0c5-77b4-4100-a786-e1815dc202d7EssDesignsItemssDoes-Sugar-Cause-T2D-1440x810.jpg" />
+    <None Include="wwwroot\Images\5e3de841ab9a204bf003f4f6Roads\84bc0222-0f60-479c-912a-b5747f3d2efdEssDesignsItemssICONICs—Pngtree—microscopic blue gradient tech wind_4039770.png" />
+    <None Include="wwwroot\Images\5e411228bc1021264c291238Mohammad\7be008cf-c4b6-439d-a17d-4d99e68b3f55EssDesignsItemssHuman-Computer-Interface.png" />
+  </ItemGroup>
+
 
 
 </Project>

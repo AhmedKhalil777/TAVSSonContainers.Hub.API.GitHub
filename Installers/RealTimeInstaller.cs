@@ -1,4 +1,5 @@
-﻿using Hub.API.Services;
+﻿using Hub.API.Hubs;
+using Hub.API.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -14,6 +15,7 @@ namespace Hub.API.Installers
         {
             services.AddSignalRCore();
             services.AddSignalR();
+            services.AddSingleton<ChatHub>();
             
         }
     }

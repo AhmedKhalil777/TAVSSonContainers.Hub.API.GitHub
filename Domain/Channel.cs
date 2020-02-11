@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace Hub.API.Domain
     public class Channel
     {
         [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string ChannelId { get; set; }
         public string AdminId { get; set; }
         public string ImgPath { get; set; }

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hub.API.V1.Controllers
 {
-    
+
     [ApiController]
     public class ChannelsController : ControllerBase
     {
@@ -23,13 +23,13 @@ namespace Hub.API.V1.Controllers
             _ChannelService = channelsService;
         }
 
-        [HttpGet(ApiRoutes.Chat.GetChannels)]
-        public async Task<IActionResult> GetChannels([FromBody] string UID) => Ok(await _ChannelService.GetChannels(UID));
+        [HttpGet(ApiRoutes.Chat.GetUserChannels)]
+        public async Task<IActionResult> GetUserChannels([FromRoute] string UID) => Ok(await _ChannelService.GetUserChannels(UID));
         [HttpPost(ApiRoutes.Chat.CreateChannel)]
         public async Task<IActionResult> CreateChannel([FromForm] CreateChannelViewModel model)
         {
-            var channel = new Channel() {Caption =model.Caption , Name =model.Name , AdminId = model.AdminId };
-            var result =await _ChannelService.CreateChannel(channel);
+            var channel = new Channel() { Caption = model.Caption, Name = model.Name, AdminId = model.AdminId };
+            var result = await _ChannelService.CreateChannel(channel);
             if (result)
                 return Ok(successfull);
             return BadRequest(failed);
@@ -37,9 +37,67 @@ namespace Hub.API.V1.Controllers
         [HttpGet(ApiRoutes.Chat.SearchUser)]
         public async Task<IActionResult> SearchUser([FromBody] string filter) => Ok(await _ChannelService.SearchUser(filter));
 
+        [HttpGet(ApiRoutes.Chat.GetUser)]
+        public async Task<IActionResult> GetUser([FromRoute] string UID) => Ok(await _ChannelService.GetUser(UID));
 
+        [HttpGet(ApiRoutes.Chat.GetUsers)]
+        public async Task<IActionResult> GetUsers() => Ok( await _ChannelService.GetUsers());
 
+        [HttpPost(ApiRoutes.Chat.CreateUser)]
+        public async Task<IActionResult> CreateUser([FromForm] string name)
+        {
+            if (await _ChannelService.CreateUser(new User() { Name = name , ImgPath = ""}))
+                return Ok(successfull);
+            return BadRequest(failed);
+        }
 
+        [HttpPut(ApiRoutes.Chat.SendMessage)]
+        public async Task<IActionResult> SendMessage([FromBody] MessageContainerViewModel model)
+        {
+            var message = new Message()
+            {
+                Body = model.Body,
+                Date = DateTime.Now,
+                UserId = model.UID
+            };
+            if(await _ChannelService.SendMessage(model.CID, model.UID, message))
+                return Ok(successfull);
+
+            return BadRequest(failed);
+
+        }
+
+        [HttpDelete(ApiRoutes.Chat.DeleteChannel)]
+        public async Task<IActionResult> DeleteChannel([FromRoute] string CID)
+        {
+            if (await _ChannelService.DeleteChannel(CID))
+                return Ok(successfull);
+            return BadRequest(failed);
+        }
+
+        [HttpPut(ApiRoutes.Chat.InsertImgtoChannel)]
+        public async Task<IActionResult> InsertImgtoChannel([FromRoute] string CID , IFormFile file)
+        {
+            var result = await _ChannelService.InsertImgtoChannel(CID, file);
+            if (result)
+            {
+                return Ok(successfull);
+            }
+            return BadRequest(failed);
+
+        }
+
+        [HttpPut(ApiRoutes.Chat.InsertImgtoUser)]
+        public async Task<IActionResult> InsertImgtoUser([FromRoute] string UID, IFormFile file)
+        {
+            var result = await _ChannelService.InsertImgtoUser(UID, file);
+            if (result)
+            {
+                return Ok(successfull);
+            }
+            return BadRequest(failed);
+
+        }
 
 
     }

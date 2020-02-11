@@ -3,9 +3,13 @@ using Hub.API.Contracts.V1.Responses;
 using Hub.API.Domain;
 using Hub.API.Hubs;
 using Hub.API.Options;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -16,16 +20,27 @@ namespace Hub.API.Services
     {
         private readonly IMongoCollection<Domain.Channel> _channel;
         private readonly IMongoCollection<Domain.User> _user;
+        private readonly IHostEnvironment _hostEnvironment;
         private readonly ChatHub _hub;
-        public ChannelsService(IChannelsDatabaseSettings channelsettings, IUsersDatabaseSettings usresettings, ChatHub hub)
+        public ChannelsService(IChannelsDatabaseSettings channelsettings, IUsersDatabaseSettings usresettings, ChatHub hub , IHostEnvironment hostEnvironment)
         {
             var client = new MongoClient(channelsettings.ConnectionString);
             var database = client.GetDatabase(channelsettings.DatabaseName);
             _hub = hub;
             _channel = database.GetCollection<Domain.Channel>(channelsettings.ChannelsCollectionName);
             _user = database.GetCollection<User>(usresettings.UsersCollectionName);
+            _hostEnvironment = hostEnvironment;
         }
         #region Channel and Mesaages
+
+        public async Task<User> GetUser(string UID)
+        {
+            var result = await _user.FindAsync(x => x.UserId == UID);
+            var user = result.FirstOrDefault();
+             user.ImgPath =user.ImgPath.Replace(@"\", @"/");
+            return user;
+        }
+
 
         public async Task<bool> CreateChannel(Domain.Channel channel)
         {
@@ -33,12 +48,13 @@ namespace Hub.API.Services
             {
                 AdminId = channel.AdminId,
                 Caption = channel.Caption,
-                ChannelId = channel.ChannelId,
                 ImgPath = "",
                 Messages = new List<Message>(),
                 Name = channel.Name,
                 Status = false,
-                Users = new List<User>() { channel.Users.FirstOrDefault() }
+                Users = new List<User>() { await GetUser(channel.AdminId) },
+                
+
             };
             try
             {
@@ -69,10 +85,10 @@ namespace Hub.API.Services
             return result.FirstOrDefault();
         }
 
-        public async Task<IEnumerable<MinChannelViewModel>> GetChannels(string UID)
+        public async Task<IEnumerable<MinChannelViewModel>> GetUserChannels(string UID)
         {
-            var result = await _channel.FindAsync(x =>x.Users.Exists(y => y.UserId == UID));
-            return result.ToList()
+            var result = await _channel.FindAsync(x =>true);
+            return result.ToList().Where(x => x.Users.Exists(y => y.UserId == UID))
                 .Select(x =>
                 new MinChannelViewModel { Caption = x.Caption ,Name =x.Name , ChannelId=x.ChannelId,ImgPath =x.ImgPath,Status= x.Status});
         }
@@ -109,14 +125,72 @@ namespace Hub.API.Services
             return users.ToList();
         }
 
-        public async Task<bool> InsertImgtoChannel(string CID)
+        public async Task<bool> InsertImgtoChannel(string CID , IFormFile file)
         {
-            throw new NotImplementedException();
+            var Channel = await GetChannel(CID);
+            string m = Channel.ChannelId + Channel.Name;
+            if (file.Length > 0)
+            {
+                try
+                {
+
+                    if (!Directory.Exists(_hostEnvironment.ContentRootPath + "\\wwwroot\\" + "Images" + "\\" + m + "\\"))
+                    {
+                        Directory.CreateDirectory(_hostEnvironment.ContentRootPath + "\\wwwroot\\" + "Images" + "\\" + m + "\\");
+                    }
+                    string guid = Guid.NewGuid().ToString();
+                    using (FileStream fileStream = File.Create(_hostEnvironment.ContentRootPath + "\\wwwroot\\" + "Images" + "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":", "s")))
+                    {
+                        file.CopyTo(fileStream);
+                        fileStream.Flush();
+                        Channel.ImgPath = "https://localhost:5001" +"\\" + "Images" + "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":", "s");
+                        var result = await _channel.ReplaceOneAsync(x => x.ChannelId == CID, Channel);
+                        return result.IsAcknowledged;
+                    }
+                }
+                catch
+                {
+
+                    return false;
+                }
+
+            }
+
+            return false;
         }
 
-        public async Task<bool> InsertImgtoUser(string UID)
+        public async Task<bool> InsertImgtoUser(string UID , IFormFile file)
         {
-            throw new NotImplementedException();
+             var User = await GetUser(UID);
+            string m = User.UserId + User.Name;
+            if (file.Length > 0)
+            {
+                try
+                {
+
+                    if (!Directory.Exists(_hostEnvironment.ContentRootPath + "\\wwwroot\\" + "Images" + "\\" + m + "\\"))
+                    {
+                        Directory.CreateDirectory(_hostEnvironment.ContentRootPath + "\\wwwroot\\" + "Images" + "\\" + m + "\\");
+                    }
+                    string guid = Guid.NewGuid().ToString();
+                    using (FileStream fileStream = File.Create(_hostEnvironment.ContentRootPath + "\\wwwroot\\" + "Images" + "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":", "s")))
+                    {
+                        file.CopyTo(fileStream);
+                        fileStream.Flush();
+                        User.ImgPath = "https://localhost:5001" + "\\" + "Images" + "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":", "s");
+                        var result = await _user.ReplaceOneAsync(x => x.UserId == UID, User);
+                        return result.IsAcknowledged;
+                    }
+                }
+                catch
+                {
+
+                    return false;
+                }
+
+            }
+
+            return false;
         }
 
         public async Task<bool> ModifyChannel(string CID, ModifyChannelViewModel model )

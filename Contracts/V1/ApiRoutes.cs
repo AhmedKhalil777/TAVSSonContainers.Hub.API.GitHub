@@ -17,17 +17,19 @@ namespace Hub.API.Contracts.V1
         {
             public const string ChatBase = Base + "chat/";
 
-            public const string GetChannel = ChatBase + "{CID}";
-            public const string GetChannels = ChatBase + "{UID}";
-            public const string SendMessage = ChatBase + "{CID}/{UID}";
-            public const string CreateChannel = ChatBase;
-            public const string DeleteChannel = ChatBase + "{CID}";
-            public const string ModifyChannel = ChatBase + "{CID}";
-            public const string CreateUser = Base + "user/";
-            public const string GetUsers = Base + "user/";
-            public const string SearchUser = Base + "user/{filter}";
-            public const string InsertImgtoChannel = ChatBase + "{CID}";
-            public const string InsertImgtoUser = ChatBase + "{UID}";
+            public const string GetChannel = ChatBase + "GetChannel/{CID}";
+            public const string GetUserChannels = ChatBase + "GetUserChannels/{UID}";
+            public const string SendMessage = ChatBase + "SendMessage/{CID}/{UID}";
+            public const string CreateChannel = ChatBase+ "CreateChannel";
+            public const string DeleteChannel = ChatBase + "DeleteChannel/{CID}";
+            public const string ModifyChannel = ChatBase + "ModifyChannel/{CID}";
+            public const string CreateUser = Base + "CreateUser/";
+
+            public const string GetUsers = Base + "GetUsers/";
+            public const string GetUser = Base + "GetUser/{UID}";
+            public const string SearchUser = Base + "SearchUser/{filter}";
+            public const string InsertImgtoChannel = ChatBase + "InsertImgtoChannel/{CID}";
+            public const string InsertImgtoUser = ChatBase + "InsertImgtoUser/{UID}";
 
 
         }
