@@ -8,17 +8,21 @@ namespace Hub.API.Hubs
 {
     public class ChatHub : Microsoft.AspNetCore.SignalR.Hub
     {
+        
         public async Task BroadCast(string Sender , string Message ) 
-            => await Clients.All.SendCoreAsync("BroadcastedMessage",new string[] { Sender, Message });
+            => await Clients.All.SendCoreAsync("RecievedMessage", new string[] { Sender, Message });
         
 
-        public async void GroupCast(string Sender , string GroupId, string Message)
-            => await Clients.Group(GroupId).SendCoreAsync(GroupId, new[] { new MessageContainerViewModel(){ 
-                Body = Message ,CID = GroupId ,UID =Sender } });
+        public async void GroupCast(string Sender , string GroupId,string imgPath, string Message)
+            => await Clients.Group(GroupId).SendCoreAsync("RecievedMessageFromGroup", new[] { new Hub.API.Domain.Message(){ 
+                Body = Message ,Date= DateTime.Now ,UserId =Sender  , imgPath =imgPath } });
         
 
         public async Task UniCast(string Sender, string RecieverId, string Message)
-            => await Clients.User(RecieverId).SendCoreAsync(RecieverId, new string[] { Sender, Message });
+            => await Clients.User(RecieverId).SendCoreAsync("RecievedMessage", new string[] { Sender, Message });
+
+        public async Task JoinGroup(string CID) => await Groups.AddToGroupAsync(Context.ConnectionId, CID);
+        
         
     }
 }

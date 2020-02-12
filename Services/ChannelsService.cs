@@ -14,7 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-
+using Hub.API.Hubs;
 namespace Hub.API.Services
 {
     public class ChannelsService : IChannelsService
@@ -23,6 +23,8 @@ namespace Hub.API.Services
         private readonly IMongoCollection<Domain.User> _user;
         private readonly IHostEnvironment _hostEnvironment;
         private readonly IHubContext<ChatHub> _hub;
+        
+       
         public ChannelsService(IChannelsDatabaseSettings channelsettings, IUsersDatabaseSettings usresettings, IHubContext<ChatHub> hub , IHostEnvironment hostEnvironment)
         {
             var client = new MongoClient(channelsettings.ConnectionString);
@@ -206,8 +208,6 @@ namespace Hub.API.Services
         public async Task<bool> SendMessage(string CID, string UID , Message message)
         {
             var user = await GetUser(UID);
-            await _hub.Clients.Group(CID).SendCoreAsync(CID, new[]
-            { new Message() {Body=message.Body ,Date =message.Date ,UserId = UID , imgPath =user.ImgPath } });
             message.imgPath = user.ImgPath;
             var channel = await GetChannel(CID);
             channel.Messages.Add(message);
