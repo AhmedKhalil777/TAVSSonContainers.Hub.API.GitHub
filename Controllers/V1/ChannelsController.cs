@@ -16,11 +16,22 @@ namespace Hub.API.V1.Controllers
     public class ChannelsController : ControllerBase
     {
         private readonly IChannelsService _ChannelService;
+        
         private static object successfull = new { Status = 1, Message = "Successful Transaction" };
         private static object failed = new { Status = 0, Message = "Failed Transaction" };
         public ChannelsController(IChannelsService channelsService)
         {
             _ChannelService = channelsService;
+        }
+        [HttpPut(ApiRoutes.Chat.AddUserToChannel)]
+        public async Task<IActionResult> AddUserToChannel([FromRoute] string CID , [FromRoute] string UID)
+        {
+            var res = await _ChannelService.AddUserToChannel(CID, UID);
+            if (res)
+            {
+                return Ok(successfull);
+            }
+            return BadRequest();
         }
 
         [HttpGet(ApiRoutes.Chat.GetUserChannels)]
@@ -50,6 +61,8 @@ namespace Hub.API.V1.Controllers
                 return Ok(successfull);
             return BadRequest(failed);
         }
+        [HttpGet(ApiRoutes.Chat.GetChannel)]
+        public async Task<IActionResult> GetChannel([FromRoute] string CID) => Ok(await _ChannelService.GetChannel(CID));
 
         [HttpPut(ApiRoutes.Chat.SendMessage)]
         public async Task<IActionResult> SendMessage([FromBody] MessageContainerViewModel model)
@@ -60,7 +73,8 @@ namespace Hub.API.V1.Controllers
                 Date = DateTime.Now,
                 UserId = model.UID
             };
-            if(await _ChannelService.SendMessage(model.CID, model.UID, message))
+
+            if (await _ChannelService.SendMessage(model.CID, model.UID, message))
                 return Ok(successfull);
 
             return BadRequest(failed);

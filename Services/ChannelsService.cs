@@ -5,6 +5,7 @@ using Hub.API.Hubs;
 using Hub.API.Options;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using System;
@@ -21,8 +22,8 @@ namespace Hub.API.Services
         private readonly IMongoCollection<Domain.Channel> _channel;
         private readonly IMongoCollection<Domain.User> _user;
         private readonly IHostEnvironment _hostEnvironment;
-        private readonly ChatHub _hub;
-        public ChannelsService(IChannelsDatabaseSettings channelsettings, IUsersDatabaseSettings usresettings, ChatHub hub , IHostEnvironment hostEnvironment)
+        private readonly IHubContext<ChatHub> _hub;
+        public ChannelsService(IChannelsDatabaseSettings channelsettings, IUsersDatabaseSettings usresettings, IHubContext<ChatHub> hub , IHostEnvironment hostEnvironment)
         {
             var client = new MongoClient(channelsettings.ConnectionString);
             var database = client.GetDatabase(channelsettings.DatabaseName);
@@ -204,11 +205,24 @@ namespace Hub.API.Services
 
         public async Task<bool> SendMessage(string CID, string UID , Message message)
         {
-           await _hub.GroupCast(UID, CID, message.Body);
+            var user = await GetUser(UID);
+            await _hub.Clients.Group(CID).SendCoreAsync(CID, new[]
+            { new Message() {Body=message.Body ,Date =message.Date ,UserId = UID , imgPath =user.ImgPath } });
+            message.imgPath = user.ImgPath;
             var channel = await GetChannel(CID);
             channel.Messages.Add(message);
             var ack = await _channel.ReplaceOneAsync( x=>x.ChannelId ==CID , channel );
             return ack.IsAcknowledged;
+        }
+
+        public async Task<bool> AddUserToChannel(string CID, string UID)
+        {
+            var user = await GetUser(UID);
+            var channel = await GetChannel(CID);
+            channel.Users.Add(user);
+            var Ack = await _channel.ReplaceOneAsync(x => x.ChannelId == CID, channel);
+            return Ack.IsAcknowledged;
+
         }
     }
 }

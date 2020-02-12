@@ -60,8 +60,6 @@ namespace Hub.API
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/ChatHub");
-                endpoints.MapHub<NotificationHub>("/NotificationHub");
-                endpoints.MapHub<ChartsHub>("/Charts");
                 
             });
 

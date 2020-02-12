@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hub.API.Contracts.V1.Requests;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,8 +12,9 @@ namespace Hub.API.Hubs
             => await Clients.All.SendCoreAsync("BroadcastedMessage",new string[] { Sender, Message });
         
 
-        public async Task GroupCast(string Sender , string GroupId, string Message)
-            => await Clients.Group(GroupId).SendCoreAsync(GroupId, new string[] { Sender, Message });
+        public async void GroupCast(string Sender , string GroupId, string Message)
+            => await Clients.Group(GroupId).SendCoreAsync(GroupId, new[] { new MessageContainerViewModel(){ 
+                Body = Message ,CID = GroupId ,UID =Sender } });
         
 
         public async Task UniCast(string Sender, string RecieverId, string Message)

@@ -9,9 +9,9 @@ namespace Hub.API.Domain
 {
     public class Message
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string MessageId { get; set; }
+
+        
+        public string imgPath { get; set; }
         public string Body { get; set; }
         public DateTime Date { get; set; }
         public string UserId { get; set; }

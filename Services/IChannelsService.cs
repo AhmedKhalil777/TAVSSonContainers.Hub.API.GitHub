@@ -14,6 +14,7 @@ namespace Hub.API.Services
         Task<Channel> GetChannel(string CID);
         Task<User> GetUser(string UID);
         Task<IEnumerable<MinChannelViewModel>> GetUserChannels(string UID);
+        Task<bool> AddUserToChannel(string CID, string UID);
         Task<bool> SendMessage(string CID, string UID, Message message);
         Task<bool> CreateChannel(Channel channel);
         Task<bool> DeleteChannel(string CID);
