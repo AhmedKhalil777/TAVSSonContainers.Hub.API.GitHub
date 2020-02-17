@@ -22,6 +22,9 @@ namespace Hub.API.Hubs
             => await Clients.User(RecieverId).SendCoreAsync("RecievedMessage", new string[] { Sender, Message });
 
         public async Task JoinGroup(string CID) => await Groups.AddToGroupAsync(Context.ConnectionId, CID);
+
+        public async Task LeaveGroup(string CID) => await Groups.RemoveFromGroupAsync(Context.ConnectionId, CID);
+
         
         
     }

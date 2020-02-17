@@ -12,8 +12,8 @@ namespace Hub.API.Services
 {
     public class ChartsServices : IChartsServices
     {
-        private readonly IHubContext<ChatHub> _hub;
-        public ChartsServices( IHubContext<ChatHub> hub)
+        private readonly IHubContext<ChartHub> _hub;
+        public ChartsServices( IHubContext<ChartHub> hub)
         {
             _hub = hub;
         }
