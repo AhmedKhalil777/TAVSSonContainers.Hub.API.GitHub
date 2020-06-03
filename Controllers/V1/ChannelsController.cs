@@ -36,8 +36,8 @@ namespace Hub.API.V1.Controllers
 
         [HttpGet(ApiRoutes.Chat.GetUserChannels)]
         public async Task<IActionResult> GetUserChannels([FromRoute] string UID) => Ok(await _ChannelService.GetUserChannels(UID));
-        [HttpPost(ApiRoutes.Chat.CreateChannel)]
-        public async Task<IActionResult> CreateChannel([FromForm] CreateChannelViewModel model)
+        [HttpPut(ApiRoutes.Chat.CreateChannel)]
+        public async Task<IActionResult> CreateChannel([FromBody] CreateChannelViewModel model)
         {
             var channel = new Channel() { Caption = model.Caption, Name = model.Name, AdminId = model.AdminId };
             var result = await _ChannelService.CreateChannel(channel);

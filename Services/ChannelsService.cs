@@ -14,7 +14,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Hub.API.Hubs;
 namespace Hub.API.Services
 {
     public class ChannelsService : IChannelsService
@@ -146,7 +145,7 @@ namespace Hub.API.Services
                     {
                         file.CopyTo(fileStream);
                         fileStream.Flush();
-                        Channel.ImgPath = "https://localhost:5001" +"\\" + "Images" + "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":", "s");
+                        Channel.ImgPath =  "\\" + "Images" + "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":", "s");
                         var result = await _channel.ReplaceOneAsync(x => x.ChannelId == CID, Channel);
                         return result.IsAcknowledged;
                     }
@@ -176,11 +175,13 @@ namespace Hub.API.Services
                         Directory.CreateDirectory(_hostEnvironment.ContentRootPath + "\\wwwroot\\" + "Images" + "\\" + m + "\\");
                     }
                     string guid = Guid.NewGuid().ToString();
-                    using (FileStream fileStream = File.Create(_hostEnvironment.ContentRootPath + "\\wwwroot\\" + "Images" + "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":", "s")))
+                    using (FileStream fileStream = File.Create(_hostEnvironment.ContentRootPath + "\\wwwroot\\" + "Images" +
+                        "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":", "s")))
                     {
                         file.CopyTo(fileStream);
                         fileStream.Flush();
-                        User.ImgPath = "https://localhost:5001" + "\\" + "Images" + "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":", "s");
+                        User.ImgPath = "\\" + "Images" + "\\" + m + "\\" + guid + file.FileName.Replace("\\", "s").Replace(":"
+                            , "s");
                         var result = await _user.ReplaceOneAsync(x => x.UserId == UID, User);
                         return result.IsAcknowledged;
                     }
