@@ -36,7 +36,7 @@ namespace Hub.API.V1.Controllers
 
         [HttpGet(ApiRoutes.Chat.GetUserChannels)]
         public async Task<IActionResult> GetUserChannels([FromRoute] string UID) => Ok(await _ChannelService.GetUserChannels(UID));
-        [HttpPut(ApiRoutes.Chat.CreateChannel)]
+        [HttpPost(ApiRoutes.Chat.CreateChannel)]
         public async Task<IActionResult> CreateChannel([FromBody] CreateChannelViewModel model)
         {
             var channel = new Channel() { Caption = model.Caption, Name = model.Name, AdminId = model.AdminId };
@@ -62,6 +62,7 @@ namespace Hub.API.V1.Controllers
             return BadRequest(failed);
         }
         [HttpGet(ApiRoutes.Chat.GetChannel)]
+        //CID = ChannelId
         public async Task<IActionResult> GetChannel([FromRoute] string CID) => Ok(await _ChannelService.GetChannel(CID));
 
         [HttpPut(ApiRoutes.Chat.SendMessage)]
@@ -89,8 +90,8 @@ namespace Hub.API.V1.Controllers
             return BadRequest(failed);
         }
 
-        [HttpPut(ApiRoutes.Chat.InsertImgtoChannel)]
-        public async Task<IActionResult> InsertImgtoChannel([FromRoute] string CID , IFormFile file)
+        [HttpPost(ApiRoutes.Chat.InsertImgtoChannel)]
+        public async Task<IActionResult> InsertImgtoChannel([FromRoute] string CID ,[FromForm] IFormFile file)
         {
             var result = await _ChannelService.InsertImgtoChannel(CID, file);
             if (result)
